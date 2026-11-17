@@ -1,0 +1,224 @@
+.TH GLOWTERM 1 "2026-11-16" "glowterm 0.1.0" "User Commands"
+.SH NAME
+glowterm \- run a shell with an animation behind its text
+.SH SYNOPSIS
+.B glowterm
+.RI [ OPTIONS ]
+.RB [ \-\-
+.I COMMAND
+.RI [ ARGS ...]]
+.SH DESCRIPTION
+.B glowterm
+runs a program, by default your login shell, inside the current terminal and
+draws an animation in the parts of the screen the program has left empty.
+Text is never covered: the animation shows only in blank cells, and is dimmed
+behind lines of text so that they stay readable.
+.PP
+The program runs in a pseudo-terminal.
+.B glowterm
+keeps its own model of the screen, mixes the animation into it, and redraws
+the real terminal about twenty times a second.
+It ends when the program ends, restores the terminal to the state it found it
+in, and exits with the program's exit status.
+.PP
+With no
+.IR COMMAND ,
+.B glowterm
+runs
+.B $SHELL \-l
+(or
+.B /bin/zsh \-l
+if
+.B SHELL
+is not set) in the current directory.
+.SH OPTIONS
+.TP
+.BR \-a ", " \-\-anim " " \fINAME\fR
+Start with the animation
+.IR NAME .
+The default is
+.BR matrix .
+See
+.B ANIMATIONS
+below.
+.TP
+.BR \-l ", " \-\-list
+List the animations and exit.
+.TP
+.BR \-i ", " \-\-intensity " " \fIN\fR
+Overall brightness of the animation, from 0.0 to 1.0.
+The default is 1.0.
+.TP
+.BR \-t ", " \-\-text\-dim " " \fIN\fR
+Share of the animation's brightness that is kept behind lines of text, from
+0.0 to 1.0.
+The default is 0.3.
+A value of 0 removes the animation from text lines altogether.
+.TP
+.BR \-d ", " \-\-density " " \fIN\fR
+How busy the animation is.
+The default is 1.0.
+Each animation interprets this in its own way: more rain, more stars, taller
+flames and so on.
+.B arcade
+ignores it.
+.TP
+.BR \-f ", " \-\-fps " " \fIN\fR
+Animation frames drawn per second, from 1 to 60.
+The default is 20.
+.TP
+.BR \-s ", " \-\-scroll " " \fIN\fR
+Lines scrolled for each notch of the mouse wheel, from 1 to 100.
+The default is 3.
+.TP
+.BR \-\-scrollback " " \fIN\fR
+Lines of history to keep.
+The default is 10000.
+.TP
+.B \-\-no\-mouse
+Do not capture the mouse.
+Click-and-drag text selection then works as usual in the terminal, but the
+wheel cannot scroll through history.
+.TP
+.B \-\-no\-hotkey
+Pass Ctrl+] to the program instead of using it to switch animation.
+.TP
+.B \-\-256
+Use the 256-colour palette even if the terminal supports 24-bit colour.
+.TP
+.BR \-h ", " \-\-help
+Show a summary of options and exit.
+.SH ANIMATIONS
+.TP
+.B matrix
+Katakana digital rain.
+.TP
+.B aurora
+Slow curtains of green and violet light.
+.TP
+.B fire
+Flames rising from the bottom edge.
+.TP
+.B starfield
+Stars streaming out from the centre.
+.TP
+.B plasma
+Flowing full-spectrum colour fields.
+.TP
+.B cyberspace
+A flight through a neon city of data towers.
+.TP
+.B nightride
+Tail-light trails through a neon city at night.
+.TP
+.B arcade
+Original early-console-style games playing themselves.
+.SH KEYS AND MOUSE
+.TP
+.B Ctrl+]
+Switch to the next animation, in the order listed above.
+Its name is shown briefly in the top-right corner.
+.TP
+.B Mouse wheel
+Scroll back and forward through earlier output.
+While scrolled back, a marker in the top-right corner shows the position, the
+cursor is hidden, and new output does not move the view.
+In a full-screen program that has not asked for the mouse itself, such as
+.BR less (1),
+the wheel sends arrow keys instead.
+.TP
+.B Typing
+Returns the view to the live screen.
+.PP
+Because
+.B glowterm
+captures the mouse, selecting text requires the terminal's override key to be
+held while dragging (Option in iTerm2, Shift in many other terminals), unless
+.B \-\-no\-mouse
+is given.
+.PP
+All other input is passed to the program unchanged.
+.SH ENVIRONMENT
+.TP
+.B SHELL
+The program to run when no
+.I COMMAND
+is given.
+.TP
+.B COLORTERM
+If this contains
+.B truecolor
+or
+.BR 24bit ,
+24-bit colour is used; otherwise colours are mapped to the 256-colour palette.
+.TP
+.B TERM
+Set to
+.B xterm\-256color
+for the program that
+.B glowterm
+runs, whatever it was outside.
+.TP
+.B GLOWTERM
+Set to 1 for the program that
+.B glowterm
+runs.
+.B glowterm
+refuses to start if it is already set, to prevent running inside itself.
+.SH EXIT STATUS
+The exit status of the program that was run.
+1 if
+.B glowterm
+could not start (for example, an unknown option, or input or output is not a
+terminal).
+143 if
+.B glowterm
+was ended by a hangup, interrupt, quit or termination signal sent from
+outside.
+.SH EXAMPLES
+Run the login shell over the default animation:
+.PP
+.RS
+.B glowterm
+.RE
+.PP
+Start with the aurora, dimmer, and with nothing behind lines of text:
+.PP
+.RS
+.B glowterm \-a aurora \-i 0.6 \-t 0
+.RE
+.PP
+Watch
+.BR htop (1)
+over a starfield:
+.PP
+.RS
+.B glowterm \-a starfield \-\- htop
+.RE
+.SH NOTES
+The terminal's own scrollback does not apply inside
+.BR glowterm ;
+use the mouse wheel as described above.
+.PP
+Terminal emulation is provided by a library and is simpler than that of a
+full terminal.
+Inline images, hyperlinks, extended keyboard protocols and the line-drawing
+character set are not supported; a few programs' borders therefore appear as
+letters.
+.PP
+A
+.BR tmux (1)
+server started from inside
+.B glowterm
+inherits the
+.B GLOWTERM
+variable, so its panes will refuse to run
+.B glowterm
+until the variable is unset.
+.PP
+If the terminal is ever left in an unusable state, run
+.BR reset (1).
+.SH SEE ALSO
+.BR tmux (1),
+.BR script (1),
+.BR reset (1)
