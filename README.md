@@ -6,6 +6,8 @@ Your shell, with a light show behind it.
 
 glowterm runs your normal shell inside a terminal window and paints an animation into the empty space behind the text: Matrix rain, an aurora, a neon city fly-through, self-playing retro games and more. You keep working as usual; the animation shows through wherever the screen is blank and dims itself behind lines of text so they stay readable.
 
+<p align="center"><img src="assets/demo.gif" alt="glowterm running a shell while cycling through its animations with Ctrl+]" width="820"></p>
+
 ```
 glowterm                  # login shell over Matrix rain
 glowterm -a cyberspace    # pick an animation
